@@ -1,7 +1,6 @@
 /*
 	"Go" widget for Apple Dashboard
-	Copyright (C) 2007 Julien Roubieu <j_roubieu@yahoo.fr>
-	Board and stone images are (c) Copyright Sen:te (http://www.sente.ch)    This program is free software: you can redistribute it and/or modify    it under the terms of the GNU General Public License as published by    the Free Software Foundation, either version 3 of the License, or    (at your option) any later version.    This program is distributed in the hope that it will be useful,    but WITHOUT ANY WARRANTY; without even the implied warranty of    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    GNU General Public License for more details.    You should have received a copy of the GNU General Public License    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	Copyright (C) 2007 Julien Roubieu <j_roubieu@yahoo.fr>    This program is free software: you can redistribute it and/or modify    it under the terms of the GNU General Public License as published by    the Free Software Foundation, either version 3 of the License, or    (at your option) any later version.    This program is distributed in the hope that it will be useful,    but WITHOUT ANY WARRANTY; without even the implied warranty of    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    GNU General Public License for more details.    You should have received a copy of the GNU General Public License    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 var hSlider, lSlider;
@@ -124,7 +123,7 @@ var Board = function() {
 	this.stepX = 31.12; // px, between each node
 	this.stepY = 31; // px, between each node
 	this.tolerance = 14; // in pixels, around each node 
-	this.stoneOffsetX = -16; // in pixels, about half the width of the stone image
+	this.stoneOffsetX = -15; // in pixels, about half the width of the stone image
 	this.stoneOffsetY = -18; // in pixels, about half the height of the stone image 
 }
 Board.prototype = {
@@ -138,7 +137,9 @@ Board.prototype = {
 
 var board = new Board();
 var lastPlayerMoves = new Array();
+var lastPlayerCaptured = new Array();
 var lastGnuMoves = new Array();
+var lastGnuCaptured = new Array();
 var userCanPlay = true;
 var firstCall = true;
 var passButtonEnabled = true;
@@ -206,6 +207,24 @@ function gnuGoPlayed(color, vertice)
 	userCanPlay = true;
 }
 
+// Callback function
+function moveCallback(color, vertice, isValidMove, deadStonesArray)
+{
+	if (!isValidMove) {
+		invalidMove();
+		return;
+	}
+	drawStone(color, vertice);
+}
+
+
+function invalidMove()
+{
+	think(false);
+	displayMessage(getLocalizedString("Invalid move"));
+	userCanPlay = true;
+}
+
 /*
 	Interface : Draws a stone of the given color at the given vertice
 	color = 'b' | 'w' | 'black' | 'white'
@@ -259,14 +278,6 @@ function hideSelectedStone()
 	$('selectedStone').className = "noSelectedStone";
 }
 
-
-// Callback function
-function invalidMove()
-{
-	think(false);
-	displayMessage(getLocalizedString("Invalid move"));
-	userCanPlay = true;
-}
 
 
 // Event
@@ -491,7 +502,7 @@ function getFullColor(color)
 }
 
 // Opens my site
-function contact(event) 
+function contact() 
 {
 	widget.openURL('http://lesiteajulien.free.fr');
 }

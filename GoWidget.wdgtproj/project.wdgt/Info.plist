@@ -11,15 +11,15 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>Brazil</string>
 	<key>CFBundleDisplayName</key>
-	<string>Little Go</string>
+	<string>Go</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.jroubieu.widget.go</string>
 	<key>CFBundleName</key>
 	<string>Go</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.1</string>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>1.1</string>
 	<key>CloseBoxInsetX</key>
 	<integer>13</integer>
 	<key>CloseBoxInsetY</key>

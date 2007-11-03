@@ -14,6 +14,8 @@ var callbacksArgs;
 var noCallback = function() {};
 var lastWasPass;
 var captured;
+var playerMoves = new Array();
+var gnuMoves = new Array();
 
 /*
 	A Configuration must be passed to the init method.
@@ -27,7 +29,7 @@ var Configuration = function(gnuGoPath, boardSize) {
 	this.gnuGoPassedCallback = noCallback;
 	this.gnuGoResignedCallback = noCallback;
 	this.invalidMoveCallback = noCallback;
-	this.moveAcceptedCallback = noCallback;
+	this.moveCallback = noCallback;
 	this.capturedStonesCallback = noCallback;
 	this.finalScoreCallback = noCallback;
 	this.undoneCallback = noCallback;
@@ -37,8 +39,7 @@ Configuration.prototype = {
 	setGnuGoPlayedCallback : function(callback) { this.gnuGoPlayedCallback = callback; },
 	setGnuGoPassedCallback : function(callback) { this.gnuGoPassedCallback = callback; },
 	setGnuGoResignedCallback : function(callback) { this.gnuGoResignedCallback = callback; },
-	setInvalidMoveCallback : function(callback) { this.invalidMoveCallback = callback; },
-	setMoveAcceptedCallback : function(callback) { this.moveAcceptedCallback = callback; },
+	setMoveCallback : function(callback) { this.moveCallback = callback; },
 	setFinalScoreCallback : function(callback) { this.finalScoreCallback = callback; },
 	setUndoneCallback : function(callback) { this.undoneCallback = callback; },
 	setHandicapCallback : function(callback) { this.handicapCallback = callback; },
@@ -84,6 +85,30 @@ Vertice.prototype = {
 		var letters = ['A','B','C','D','E','F','G','H','J'];
 		return letters[this.X-1] + this.Y;
 	}
+}
+
+/*
+	A Move is a color, a vertice (which can be 'pass' or 'resign'), a success flag (true if move is valid), and eventually an array of captured stones vertices
+*/
+var Move = function (color, vertice, success, capturedArray) {
+	this.color = color;
+	this.vertice = vertice;
+	this.success = success;
+	this.captured = capturedArray;
+}
+Move.prototype = {
+	hasCaptured : function() {
+		return this.captured != null && this.captured.length > 0;
+	},
+	isSuccess : function() {
+		return this.success;
+	},
+	isPass : function() {
+		return this.vertice == 'pass';
+	},
+	isResign : function() {
+		return this.vertice == 'resign';
+	}	
 }
 
 /*
@@ -175,19 +200,6 @@ function getStonesPositions(color, callback)
 	exe("list_stones "+color, callback);
 }
 
-function checkCaptured(color)
-{
-	exe("captures "+color, function(response) { analyseCaptured(color, response); });
-}
-function analyseCaptured(color, nCaptured)
-{
-	// calls capturedStonesCallback function if some new stones were captured
-	if (captured[color] != nCaptured) {
-		captured[color] = nCaptured;
-		config.capturedStonesCallback(color, nCaptured);
-	}
-}
-
 // Input
 function move(vertice)
 {
@@ -210,15 +222,52 @@ function pass()
 }
 
 // callback function, after human has played
-function moveResult(response, success)
+function moveResult(vertice, success)
 {
 	if (success) {
-		config.moveAcceptedCallback(prefs.playerColor, response);
-		checkCaptured(prefs.playerColor);
-		exe("genmove " + prefs.gnuColor, parseMove);
+		checkCaptured(prefs.playerColor, function(capturedVertices) {
+			var move = new Move(prefs.playerColor, vertice, true, capturedVertices);
+			config.moveCallback(move);	
+			exe("genmove " + prefs.gnuColor, parseMove);
+		} );
 	}
 	else config.invalidMoveCallback();
 }
+
+/*
+	Check if there are new captured stones.
+	@param color : captured color
+	@param callback : callback function (arrayOfCapturedVertices)
+*/
+function checkCaptured(color, callback)
+{
+	exe("captures "+color, function(response) { countCaptured(color, response, callback); });
+}
+function countCaptured(color, nCaptured, callback)
+{
+	// calls capturedStonesCallback function if some new stones were captured
+	if (captured[color] != nCaptured) {
+		captured[color] = nCaptured;
+		//config.capturedStonesCallback(color, nCaptured);
+		getStonesPositions(color, function(response) { parseCaptured(color, response, callback); });
+	}
+	else {
+		// no captures
+		callback(new Array());
+	}
+}
+function parseCaptured(color, verticesList, callback)
+{
+	var captured = new Array();
+	var moves = (color == prefs.playerColor) ? playerMoves : gnuMoves;
+	$A(moves).each(function(move) {
+		if (verticesList.indexOf(move.vertice.getCoords()) == -1) {
+			captured.push(vertice);
+		}
+	});
+	callback(captured);
+}
+
 
 // callback function, after gnugo has played
 function parseMove(response)

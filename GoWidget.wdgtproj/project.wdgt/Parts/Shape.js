@@ -1,7 +1,7 @@
 /*
-Copyright © 2006-2007 Apple Inc.  All Rights Reserved.
+© Copyright 2006 Apple Computer, Inc. All rights reserved.
 
-IMPORTANT:  This Apple software ("Apple Software") is supplied to  you in consideration of your agreement to the following terms. Your use, installation and/or redistribution of this Apple Software constitutes acceptance of these terms. If you do not agree with these terms, please do not use, install, or redistribute this Apple Software.
+IMPORTANT:  This Apple software ("Apple Software") is supplied to you in consideration of your agreement to the following terms. Your use, installation and/or redistribution of this Apple Software constitutes acceptance of these terms. If you do not agree with these terms, please do not use, install, or redistribute this Apple Software.
 
 Provided you comply with all of the following terms, Apple grants you a personal, non-exclusive license, under Apple’s copyrights in the Apple Software, to use, reproduce, and redistribute the Apple Software for the sole purpose of creating Dashboard widgets for Mac OS X. If you redistribute the Apple Software, you must retain this entire notice in all such redistributions.
 
@@ -15,10 +15,15 @@ IN NO EVENT SHALL APPLE BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL OR CONSE
 function CreateShape(shapeID, spec)
 {
 	var shapeElement = document.getElementById(shapeID);
-	if (!shapeElement.loaded) {
+	if (!shapeElement.loaded) 
+	{
 		shapeElement.loaded = true;
 		var prefix = "Images/" + shapeID + "_";
-		var height = getElementHeight(shapeElement) || 20;
+		var height = 20;
+		if (shapeElement.offsetHeight > 0) 
+		{
+			height = shapeElement.offsetHeight;
+		}
 		var leftImageWidth = spec.leftImageWidth || 0;
 		var rightImageWidth = spec.rightImageWidth || 0;
 		shapeElement.object = new Shape(shapeElement, height, leftImageWidth, rightImageWidth, prefix + "left.png", prefix + "middle.png", prefix + "right.png");

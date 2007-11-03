@@ -11,7 +11,6 @@ function setupParts() {
     CreateShape('rectangleShape', { rightImageWidth: 2, leftImageWidth: 2 });
     CreateText('handicapLbl', { text: 'Handicap' });
     CreateText('handicapValueLbl', { text: '0' });
-    CreateText('signature', { text: 'http://lesiteajulien.free.fr' });
     CreateText('playLbl', { text: 'Play' });
     CreateGlassButton('newbutton', { text: 'New Game', onclick: 'newClicked' });
     CreateGlassButton('passbutton', { text: 'Pass', onclick: 'passClicked' });

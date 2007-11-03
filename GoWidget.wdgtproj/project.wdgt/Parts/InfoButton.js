@@ -1,5 +1,5 @@
 /*
-© Copyright 2006-2007 Apple Inc.  All rights reserved.
+© Copyright 2006 Apple Computer, Inc. All rights reserved.
 
 IMPORTANT:  This Apple software ("Apple Software") is supplied to you in consideration of your agreement to the following terms. Your use, installation and/or redistribution of this Apple Software constitutes acceptance of these terms. If you do not agree with these terms, please do not use, install, or redistribute this Apple Software.
 

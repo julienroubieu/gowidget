@@ -1,7 +1,6 @@
 <!--
 	"Go" widget for Apple Dashboard
 	Copyright (C) 2007 Julien Roubieu <j_roubieu@yahoo.fr>
-	Board and stone images are (c) Copyright Sen:te (http://www.sente.ch)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,7 +14,9 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
---><html>
+-->
+
+<html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <style type="text/css" title="AppleStyle">
@@ -35,64 +36,49 @@
     <script type="text/javascript" src="effects.js" charset="utf-8"></script>
     <script type="text/javascript" src="GoWidget.js" charset="utf-8"></script>
     <script type="text/javascript" src="GTP.js" charset="utf-8"></script>
-<script type="text/javascript" src="AppleClasses/AppleSlider.js" charset="utf-8"></script>
-<script type="text/javascript" src="Parts/HorizontalSlider.js" charset="utf-8"></script>
-<script type="text/javascript" src="Parts/Shape.js" charset="utf-8"></script>
+	<script type="text/javascript" src="AppleClasses/AppleSlider.js" charset="utf-8"></script>
+	<script type="text/javascript" src="Parts/HorizontalSlider.js" charset="utf-8"></script>
+	<script type="text/javascript" src="Parts/Shape.js" charset="utf-8"></script>
 </head>
 <body onload="load();">
 	<div id="front">
-		
-		
-	
-	<div apple-part="com.apple.Dashcode.part.rectangleshape" class="apple-no-children" apple-style="image-theme: 1; image-shape: 3; image-button-type: 3; image-opacity: 1.00; image-top-color: 0.3801,0.3801,0.3801; image-bottom-color: 0.2217,0.2217,0.2217; image-radius: 0,0,0,0; image-border: 0; image-border-color: 0.6700,0.6700,0.6700; image-border-width: 2; shine-include-alphas: 0; glass-include-arc: 0; shadow-include-shadow: 0; shadow-blur: 3.00;" id="rectangleShape" apple-group="rectangleShape" style=""></div>
-	<div id="buttons">
-		<div apple-part="com.apple.Dashcode.part.glassbutton" class="apple-no-children" id="passbutton" apple-group="glassbutton"></div>
-		<div id="thinking" 1=""> 
-			<img src="Images/30w.png" id="thinkingStone">
+		<div id="rectangleShape" style=""></div>
+		<div id="buttons">
+			<div id="passbutton"></div>
+			<div id="thinking" 1=""> 
+				<img src="Images/30w.png" id="thinkingStone">
+			</div>
+			<div id="newbutton"></div>
+			<div id="message" apple-text-overflow="ellipsis"></div>
 		</div>
-		<div apple-part="com.apple.Dashcode.part.glassbutton" class="apple-no-children" id="newbutton" apple-group="glassbutton"></div>
-		<div apple-part="com.apple.Dashcode.part.text" class="apple-text apple-no-children" apple-default-image-visibility="hidden" id="message" apple-group="text1" apple-text-overflow="ellipsis"></div>
-	</div>
-	<img src="Images/goban.png" id="img" style="" onclick="placeStone(event);">
-	<div id="stones">
-	</div>
-	<div id="selectedStone"></div>
-	<div class="apple-no-children" id="info" apple-part="com.apple.Dashcode.part.infobutton" apple-default-image-visibility="hidden"></div>
-	<embed id="tock" src="Tock.aiff" autostart="false" hidden="true" enablejavascript="true"></embed>
-        
-	
-	<div id="centerMessage" onclick="centerMessageClicked();">
-		<div apple-part="com.apple.Dashcode.part.roundedrectangleshape" class="apple-no-children" apple-style="image-theme: 0; image-shape: 3; image-button-type: 3; image-opacity: 0.71; image-top-color: 0.2000,0.2000,0.2000; image-bottom-color: 0.6700,0.6700,0.6700; image-radius: 29,29,29,29; image-border: 1; image-border-color: 0.0000,0.0000,0.0000; image-border-width: 4; shadow-include-shadow: 0; shadow-blur: 3.00;" id="centerMessageBackground" apple-group="roundedRectangleShape" style=""></div>
-		
-	<div id="centerMessageLbl">Loading...</div>
-	
+		<img src="Images/goban.png" id="img" style="" onclick="placeStone(event);">
+		<div id="stones"></div>
+		<div id="selectedStone"></div>
+		<div id="info"></div>
+		<div id="centerMessage" onclick="centerMessageClicked();">
+			<div id="centerMessageBackground" style=""></div>
+			<div id="centerMessageLbl">Loading...</div>	
+		</div>
+		<embed id="tock" src="Tock.aiff" autostart="false" hidden="true" enablejavascript="true"></embed>
 	</div>
 	
-	</div>
     <div id="back">
-    	<img id="backImg" src="Images/back.png" alt="" apple-locked="true" apple-part="com.apple.Dashcode.part.backimage" apple-style=" image-radius: 12,12,12,12; image-border: 1; image-border-color: 0.1500,0.1500,0.1500; image-border-width: 3; shadow-include-shadow: 1; shadow-blur: 9.00; shadow-offset: -1.00,-6.00; shadow-color: 0.0000,0.0000,0.0000,0.3333;">
-	   
-    	
-        <div id="done" class="apple-no-children" apple-part="com.apple.Dashcode.part.glassbutton"></div>
-    <div apple-part="com.apple.Dashcode.part.horizontalslider" class="apple-no-children" id="levelSlider" apple-group="horizontalSlider" style="height: 22px; -apple-dashboard-region: dashboard-region(control rectangle    ); "></div>
-    <div apple-part="com.apple.Dashcode.part.text" class="apple-text apple-no-children" apple-default-image-visibility="hidden" id="gnugoLevelLbl" apple-group="text"></div>
-    <div apple-part="com.apple.Dashcode.part.text" class="apple-text apple-no-children" apple-default-image-visibility="hidden" id="levelValueLbl" apple-group="text"></div>
-    <div apple-part="com.apple.Dashcode.part.text" class="apple-text apple-no-children" apple-default-image-visibility="hidden" id="handicapLbl" apple-group="text"></div>
-    
-    <div apple-part="com.apple.Dashcode.part.text" class="apple-text apple-no-children" apple-default-image-visibility="hidden" id="handicapValueLbl" apple-group="text"></div>
-    <div apple-part="com.apple.Dashcode.part.text" class="apple-text apple-no-children" apple-default-image-visibility="hidden" id="signature" apple-group="text5" onclick="contact(event);"></div>
-    <div apple-part="com.apple.Dashcode.part.text" class="apple-text apple-no-children" apple-default-image-visibility="hidden" id="playLbl" apple-group="text6"></div>
-    
-    
-    
-    
-    
-    <input type="text" value="5.5" class="apple-textfield apple-no-children" apple-part="com.apple.Dashcode.part.textfield" id="komiField" apple-group="textfield">
-    <div apple-part="com.apple.Dashcode.part.text" class="apple-text apple-no-children" apple-default-image-visibility="hidden" id="komiLbl1" apple-group="text6"></div>
-    
-    <div apple-part="com.apple.Dashcode.part.horizontalslider" class="apple-no-children" id="handicapSlider" apple-group="horizontalSlider" style="height: 22px; -apple-dashboard-region: dashboard-region(control rectangle    ); " ondrop="handicapDropped(event);"></div>
-    <select apple-part="com.apple.Dashcode.part.backpopupbutton" id="colorCombo" apple-group="popup"> 	<option id="blackOption" value="black" apple-group="popup"></option> 	<option id="whiteOption" value="white" apple-group="popup"></option>
-    </select>
+    	<img id="backImg" src="Images/back.png" alt="">
+        <div id="done"></div>
+    	<div id="levelSlider" style="height: 22px; -apple-dashboard-region: dashboard-region(control rectangle    ); "></div>
+    	<div id="gnugoLevelLbl"></div>
+    	<div id="levelValueLbl"></div>
+    	<div id="handicapLbl"></div>
+    	<div id="handicapValueLbl"></div>
+    	<div id="contact" class="clickable" onclick="contact();">Go Widget 1.1</div>
+    	<div id="playLbl"></div>
+    	<input type="text" value="5.5" id="komiField">
+    	<div id="komiLbl1"></div>
+    	<div id="handicapSlider" style="height: 22px; -apple-dashboard-region: dashboard-region(control rectangle    ); " ondrop="handicapDropped(event);"></div>
+    	<select id="colorCombo"> 	
+    		<option id="blackOption" value="black"></option> 	
+    		<option id="whiteOption" value="white"></option>
+    	</select>
     </div>
 </body>
 </html>
