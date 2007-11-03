@@ -1,7 +1,7 @@
 /*
-	GnuGo Transfer Protocol Javascript Interface v1.0
-	June 2007
-	(c) Julien Roubieu - j_roubieu@yahoo.fr
+	GnuGo Transfer Protocol Javascript Interface v1.0     
+	Copyright (C) 2007 Julien Roubieu <j_roubieu@yahoo.fr>    This program is free software: you can redistribute it and/or modify    it under the terms of the GNU General Public License as published by    the Free Software Foundation, either version 3 of the License, or    (at your option) any later version.    This program is distributed in the hope that it will be useful,    but WITHOUT ANY WARRANTY; without even the implied warranty of    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    GNU General Public License for more details.    You should have received a copy of the GNU General Public License    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 */
 
 var config;
@@ -10,6 +10,7 @@ var commandId = 1;
 var command;
 var responseBuffer;
 var callbacks;
+var callbacksArgs;
 var noCallback = function() {};
 var lastWasPass;
 var captured;
@@ -86,6 +87,33 @@ Vertice.prototype = {
 }
 
 /*
+	Represents the final state of a game, giving all necessary information to display the final state on a goban.
+*/
+var Score = function (scoreString, alive, dead, seki, whiteTerritory, blackTerritory, dame, capturedByWhite, capturedByBlack)
+{
+	this.scoreString = scoreString;
+	this.alive = alive;
+	this.dead = dead;
+	this.seki = seki;
+	this.white = whiteTerritory;
+	this.black = blackTerritory;
+	this.dame = dame;
+	this.capturedByWhite = capturedByWhite;
+	this.capturedByBlack = capturedByBlack;
+}
+Score.prototype = {
+	// Returns true if this score has a status for each goban vertice
+	isComplete : function() {
+		var knownCount = this.alive.length + this.dead.length + this.seki.length + this.white.length + this.black.length + this.dame.length;
+		var total = config.boardSize * config.boardSize;
+		return knownCount >= total;
+	}
+}
+
+var finalScore = new Score("", new Array(), new Array(), new Array(), new Array(), new Array(), new Array(), 0, 0);
+
+
+/*
 	Calls gnugo and sets the given configuration
 */
 function initGnuGo(configuration, preferences)
@@ -106,10 +134,12 @@ function startNewGame(preferences)
 	prefs = preferences;
 	responseBuffer = '';
 	callbacks = new Array();
+	callbacksArgs = new Array();
 	lastWasPass = false;
 	captured = new Array();
 	captured["w"] = "0";
 	captured["b"] = "0";
+	finalScore = new Score("", new Array(), new Array(), new Array(), new Array(), new Array(), new Array(), 0, 0);
 	exe("level " + prefs.level, noCallback);
 	exe("boardsize " + config.boardSize, noCallback);
 	exe("komi " + prefs.komi, noCallback);
@@ -170,7 +200,7 @@ function move(vertice)
 function pass()
 {
 	if (lastWasPass) {
-		exe("final_score", showFinalScore);
+		computeFinalScore(null, null, 0);
 	}
 	else {
 		lastWasPass = true;
@@ -205,7 +235,7 @@ function parseMove(response)
 	}
 	else if (response.toLowerCase() == "pass") {
 		if (lastWasPass) {
-			exe("final_score", showFinalScore);
+			computeFinalScore(null, null, 0);
 		}
 		else {
 			config.gnuGoPassedCallback();
@@ -215,6 +245,69 @@ function parseMove(response)
 	else if (response.toLowerCase() == "resign") {
 		config.gnuGoResignedCallback();
 	}
+}
+
+// Input, should be called after both player have passed
+function computeFinalScore(response, success, step)
+{
+	var callNextStep = function(r, s) { computeFinalScore(r, s, step+1); };
+	switch (step) {
+		case 0 :
+			exe("final_score", callNextStep);
+			break;
+		case 1 :
+			finalScore.scoreString = response;
+			exe("captures black", callNextStep);
+			break;
+		case 2 :
+			finalScore.capturedByBlack = response;
+			exe("captures white", callNextStep);
+			break;
+		case 3 :
+			finalScore.capturedByWhite = response;
+			for (var i=1; i<=9; i++) {
+				for (var j=1; j<=9; j++) {
+					var v = new Vertice(i,j);
+					var callback = function(response, success, vertice) {
+						if (success) finalVerticeStatus(vertice, response);
+						if (finalScore.isComplete()) config.finalScoreCallback(finalScore);
+					};
+					exe("final_status "+v.getCoords(), callback, v);
+				}
+			}
+			break;
+		default : break;
+	}
+}
+
+//Callback Receives the final state of a vertice
+function finalVerticeStatus(vertice, status)
+{
+	var arr = null;
+	switch (status)
+	{
+		case "alive" : arr = finalScore.alive; break;
+		case "dead" : arr = finalScore.dead; break;
+		case "dame" : arr = finalScore.dame; break;
+		case "white_territory" : arr = finalScore.white; break;
+		case "black_territory" : arr = finalScore.black; break;
+		case "seki" : arr = finalScore.seki; break;
+		default : break;
+	}
+	if (arr != null)
+		arr.push(vertice);
+} 
+
+// Util, returns an iterable array of vertices
+function parseVerticeList(verticeListString)
+{
+	var coords = $A(verticeListString.split(' '));
+	var vertices = new Array();
+	coords.each(function(coord) {
+			vertices.push(new Vertice(coord));
+		}
+	);
+	return $A(vertices);
 }
 
 // Triggered when gnugo outputs something
@@ -228,19 +321,13 @@ function outputHandler(gtpOutput)
 		var success = matched[1] == '=';
 		var id = matched[2];
 		var response = matched[3];
-		if (callbacks[id]) callbacks[id](response, success);
+		if (callbacks[id]) callbacks[id](response, success, callbacksArgs[id]);
 		responseBuffer = responseBuffer.substring(matched[0].length);
 	}	
 }
 
 function endHandler()
 {
-}
-
-// Callback function
-function showFinalScore(score)
-{
-	config.finalScoreCallback(score);
 }
 
 // Input
@@ -261,13 +348,20 @@ function lastMoveUndone(response, success)
 		called = 0;
 		nUndone = 0;
 	}
-	
+}
+
+function testCallback(response, success)
+{
+	var r = response;
+	var s = success;
 }
 
 // Util : executes the given command String. The callback function will be called with the response and success flag.
-function exe(gtpCommand, callback)
+function exe(gtpCommand, callback, args)
 {
 	var id = commandId++;
 	callbacks[id] = callback;
+	if (args != null) callbacksArgs[id] = args;
 	command.write(id + ' ' + gtpCommand + '\n');
+	return id;
 }

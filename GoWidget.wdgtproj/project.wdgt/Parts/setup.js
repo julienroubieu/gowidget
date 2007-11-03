@@ -18,8 +18,7 @@ function setupParts() {
     CreateText('message', { text: ' ' });
     CreateText('komiLbl1', { text: 'Komi' });
     CreateHorizontalSlider('handicapSlider', { continuous: true, onchange: 'handicapChanged' });
-    CreateButton('white9', { rightImageWidth: 16, leftImageWidth: 10, text: 'GnuGo' });
     CreateShape('centerMessageBackground', { rightImageWidth: 29, leftImageWidth: 29 });
-    CreateText('centerMessageLbl', { text: 'Loading...' });
+    CreateText('centerMessageLbl', { text: 'Loading' });
 }
 window.addEventListener('load', setupParts, false);
