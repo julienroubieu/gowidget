@@ -1,5 +1,5 @@
 /*
-	"Go" widget for Apple Dashboard
+	"Go widget" for Apple Dashboard. Version 1.1
 	Copyright (C) 2007 Julien Roubieu <j_roubieu@yahoo.fr>    This program is free software: you can redistribute it and/or modify    it under the terms of the GNU General Public License as published by    the Free Software Foundation, either version 3 of the License, or    (at your option) any later version.    This program is distributed in the hope that it will be useful,    but WITHOUT ANY WARRANTY; without even the implied warranty of    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    GNU General Public License for more details.    You should have received a copy of the GNU General Public License    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
@@ -145,7 +145,9 @@ var firstCall = true;
 var passButtonEnabled = true;
 
 
-// Event
+/* 
+	Event. Called when the goban is clicked.
+*/
 function placeStone(event) 
 {	
 	if (!userCanPlay) {
@@ -162,7 +164,10 @@ function placeStone(event)
 	}
 }
 
-// Callback
+/*
+	Callback. Draws black stones at each of the given vertices
+	@param vertices Array of Vertices
+*/
 function drawHandicap(vertices)
 {
 	vertices.each(function(vertice) {
@@ -171,7 +176,11 @@ function drawHandicap(vertices)
 	if (preferences.gnuColor == "w") userCanPlay = false;
 }
 
-// Interface : Computes the coordinates of a mouse event to return a vertice.
+/* 
+	Interface. Computes the coordinates of a mouse event to return a vertice.
+	@param event a Mouse event
+	@return a Vertice object, or null if no vertice could be computed from the event
+*/
 function getVertice(event)
 {
 	var coordX = -1;
